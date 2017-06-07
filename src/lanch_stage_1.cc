@@ -11,20 +11,22 @@ std::string MainSource(){
 }
 
 int main(int argc, char *argv[]) {
-    V8::InitializeICUDefaultLocation(argv[0]);
-    V8::InitializeExternalStartupData(argv[0]);
-    Platform* platform = platform::CreateDefaultPlatform();
-    V8::InitializePlatform(platform);
-    V8::Initialize();
+    std::string source_code = MainSource();
+    std::cout << source_code << std::endl;
+    // V8::InitializeICUDefaultLocation(argv[0]);
+    // V8::InitializeExternalStartupData(argv[0]);
+    // Platform* platform = platform::CreateDefaultPlatform();
+    // V8::InitializePlatform(platform);
+    // V8::Initialize();
 
-    Isolate::CreateParams create_params;
-    create_params.array_buffer_allocator =
-        v8::ArrayBuffer::Allocator::NewDefaultAllocator();
-    Isolate* isolate = Isolate::New(create_params); 
-    {
-        Isolate::Scope isolate_scope(isolate);
-        HandleScope handle_scope(isolate);
-    }
+    // Isolate::CreateParams create_params;
+    // create_params.array_buffer_allocator =
+    //     v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+    // Isolate* isolate = Isolate::New(create_params); 
+    // {
+    //     Isolate::Scope isolate_scope(isolate);
+    //     HandleScope handle_scope(isolate);
+    // }
     return 0;
 }
 
