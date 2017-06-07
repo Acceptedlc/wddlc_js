@@ -11,22 +11,31 @@ std::string MainSource(){
 }
 
 int main(int argc, char *argv[]) {
-    std::string source_code = MainSource();
-    std::cout << source_code << std::endl;
-    // V8::InitializeICUDefaultLocation(argv[0]);
-    // V8::InitializeExternalStartupData(argv[0]);
-    // Platform* platform = platform::CreateDefaultPlatform();
-    // V8::InitializePlatform(platform);
-    // V8::Initialize();
+    V8::InitializeICUDefaultLocation(argv[0]);
+    V8::InitializeExternalStartupData(argv[0]);
+    Platform* platform = platform::CreateDefaultPlatform();
+    V8::InitializePlatform(platform);
+    V8::Initialize();
 
-    // Isolate::CreateParams create_params;
-    // create_params.array_buffer_allocator =
-    //     v8::ArrayBuffer::Allocator::NewDefaultAllocator();
-    // Isolate* isolate = Isolate::New(create_params); 
-    // {
-    //     Isolate::Scope isolate_scope(isolate);
-    //     HandleScope handle_scope(isolate);
-    // }
+    Isolate::CreateParams create_params;
+    create_params.array_buffer_allocator =
+        v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+    Isolate* isolate = Isolate::New(create_params); 
+    {
+        Isolate::Scope isolate_scope(isolate);
+        HandleScope handle_scope(isolate);
+        v8::Local<v8::Context> context = Context::New(isolate);
+        Context::Scope context_scope(context);
+        Local<String> source = String::NewFromUtf8(isolate, MainSource().c_str(), NewStringType::kNormal, MainSource().size()).ToLocalChecked();
+        Local<Script> script = Script::Compile(context, source).ToLocalChecked();
+        Local<Value> result = script->Run(context).ToLocalChecked();
+        std::cout << result->IsFunction() << std::endl;
+    }
+    isolate->Dispose();
+    V8::Dispose();
+    V8::ShutdownPlatform();
+    delete platform;
+    delete create_params.array_buffer_allocator;
     return 0;
 }
 
