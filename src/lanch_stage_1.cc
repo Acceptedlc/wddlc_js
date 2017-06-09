@@ -10,6 +10,20 @@ std::string MainSource(){
     return bootstrap_js_code; 
 }
 
+const char* ToCString(const String::Utf8Value& value) {
+    return *value ? *value : "<string conversion failed>";
+}
+
+
+static void LogCallback(const v8::FunctionCallbackInfo<v8::Value>& args){
+    if (args.Length() < 1) return;
+    HandleScope scope(args.GetIsolate());
+    Local<Value> arg = args[0];
+    String::Utf8Value value(arg);
+    const char* name = ToCString(value);
+    printf("%s\n",name);
+}
+
 int main(int argc, char *argv[]) {
     V8::InitializeICUDefaultLocation(argv[0]);
     V8::InitializeExternalStartupData(argv[0]);
@@ -26,10 +40,28 @@ int main(int argc, char *argv[]) {
         HandleScope handle_scope(isolate);
         v8::Local<v8::Context> context = Context::New(isolate);
         Context::Scope context_scope(context);
+
         Local<String> source = String::NewFromUtf8(isolate, MainSource().c_str(), NewStringType::kNormal, MainSource().size()).ToLocalChecked();
         Local<Script> script = Script::Compile(context, source).ToLocalChecked();
         Local<Value> result = script->Run(context).ToLocalChecked();
-        std::cout << result->IsFunction() << std::endl;
+
+        Local<FunctionTemplate> process_template = FunctionTemplate::New(isolate);
+        process_template->SetClassName(String::NewFromUtf8(isolate, "process", NewStringType::kNormal, sizeof("process") - 1).ToLocalChecked());
+        Local<Object> process_object =
+            process_template->GetFunction()->NewInstance(context).ToLocalChecked();
+        process_object->Set(
+                String::NewFromUtf8(isolate, "log", NewStringType::kNormal).ToLocalChecked(),
+                FunctionTemplate::New(isolate, LogCallback)->GetFunction()
+        );
+
+        //std::cout << result->IsFunction() << std::endl;
+        Local<Function> f = Local<Function>::Cast(result);
+        Local<Object> thisObj = Null(isolate);
+        f->Call(context, thisObj , 1, &process_object);
+       
+
+        using namespace std;
+        cout << sizeof("process") << endl;
     }
     isolate->Dispose();
     V8::Dispose();
