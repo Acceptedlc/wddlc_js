@@ -56,12 +56,9 @@ int main(int argc, char *argv[]) {
 
         //std::cout << result->IsFunction() << std::endl;
         Local<Function> f = Local<Function>::Cast(result);
-        Local<Object> thisObj = Null(isolate);
-        f->Call(context, thisObj , 1, &process_object);
-       
-
-        using namespace std;
-        cout << sizeof("process") << endl;
+        Local<Value> thisObj = Null(isolate);
+        Local<Value> arg = process_object;
+        f->Call(thisObj, 1, &arg);
     }
     isolate->Dispose();
     V8::Dispose();
