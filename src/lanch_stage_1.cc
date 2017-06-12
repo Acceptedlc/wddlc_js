@@ -54,12 +54,10 @@ int main(int argc, char *argv[]) {
                 FunctionTemplate::New(isolate, LogCallback)->GetFunction()
         );
 
-        //std::cout << result->IsFunction() << std::endl;
         Local<Function> f = Local<Function>::Cast(result);
         Local<Value> thisObj = Null(isolate);
         Local<Value> arg = process_object;
         f->Call(Null(isolate), 1, &arg);
-        //f->Call(thisObj, 1, &arg);
     }
     isolate->Dispose();
     V8::Dispose();
