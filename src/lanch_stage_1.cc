@@ -58,7 +58,8 @@ int main(int argc, char *argv[]) {
         Local<Function> f = Local<Function>::Cast(result);
         Local<Value> thisObj = Null(isolate);
         Local<Value> arg = process_object;
-        f->Call(thisObj, 1, &arg);
+        f->Call(Null(isolate), 1, &arg);
+        //f->Call(thisObj, 1, &arg);
     }
     isolate->Dispose();
     V8::Dispose();
